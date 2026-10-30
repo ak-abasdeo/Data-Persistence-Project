@@ -4,6 +4,7 @@ using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 using UnityEngine.InputSystem; // MIGRATED: New Input System namespace
+using System.IO;
 
 public class MainManager : MonoBehaviour
 {
@@ -12,6 +13,8 @@ public class MainManager : MonoBehaviour
     public Rigidbody Ball;
 
     public Text ScoreText;
+    public Text HighScoreText;
+
     public GameObject GameOverText;
 
     private bool m_Started = false;
@@ -57,6 +60,7 @@ public class MainManager : MonoBehaviour
                 brick.onDestroyed.AddListener(AddPoint);
             }
         }
+        ShowHighScore();
     }
 
     private void Update()
@@ -86,12 +90,26 @@ public class MainManager : MonoBehaviour
     void AddPoint(int point)
     {
         m_Points += point;
-        ScoreText.text = $"Score : {m_Points}";
+        ScoreText.text = $"Score: {m_Points}";
+    }
+
+    private void ShowHighScore()
+    {
+        HighScoreText.text = "High Score: " + ScoreManager.instance.playerName + ": " + ScoreManager.instance.highScore;
     }
 
     public void GameOver()
     {
         m_GameOver = true;
         GameOverText.SetActive(true);
+        if (ScoreManager.instance.highScore < m_Points)
+        {
+            ScoreManager.instance.highScore = m_Points;
+            ScoreManager.instance.playerName = ScoreManager.instance.currentName;
+            ShowHighScore();
+            ScoreManager.instance.SaveScore();
+        }
     }
+
+    
 }
